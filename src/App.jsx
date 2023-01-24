@@ -1,34 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import React from 'react';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useNavigate } from 'react-router-dom';
+import { OktaAuth, toRelativeUrl } from '@okta/okta-auth-js';
+import { Security } from '@okta/okta-react';
+import { Container } from 'semantic-ui-react';
+import config from './config';
+import Navbar from './Navbar';
+import Routes from './components/Routes';
+
+
+const oktaAuth = new OktaAuth(config.oidc);
+//await oktaAuth.start(); // start the service
+
+const App = () => {
+  const navigate = useNavigate();
+  const restoreOriginalUri = (_oktaAuth, originalUri) => {
+    navigate(toRelativeUrl(originalUri || '/', window.location.origin));
+  };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
-}
-
-export default App
+    <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri}>
+      <Container text style={{ marginTop: '7em' }} className="App">
+        <header className="App-header">
+          <Navbar />
+        </header>
+        <main>
+          <Routes />
+        </main>
+      </Container>
+    </Security>
+  );
+};
+export default App;
